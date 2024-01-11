@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:flutter_webrtc_example/src/widgets/kyy/Cmd.dart';
+import 'package:flutter_webrtc_example/src/widgets/kyy/DataChannel.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 
@@ -16,6 +17,7 @@ class _KyyState extends State<Kyy> {
   final _remoteRenderer = RTCVideoRenderer();
   IO.Socket? _socket;
   RTCPeerConnection? _peerConnection;
+  RTCDataChannel? _dataChannel;
 
   @override
   void initState() {
@@ -29,12 +31,76 @@ class _KyyState extends State<Kyy> {
         title: Text('demo'),
         actions: [
           IconButton(
+            icon: Icon(Icons.home),
+            onPressed: () {
+              _dataChannel?.send(RTCDataChannelMessage(jsonEncode(MouseMsg(type: 3, data: null))));
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.play_circle),
             onPressed: _play,
           )
         ],
       ),
-      body: RTCVideoView(_remoteRenderer),
+      body: LayoutBuilder(builder: (context, constraints) {
+        return GestureDetector(
+          onPanDown: (detail) {
+            print("onPanDown: ${detail.globalPosition}, ${detail.localPosition}");
+            var mouseData = MouseData(
+                ActiveType: 1,
+                x: detail.localPosition.dx,
+                y: detail.localPosition.dy,
+                InterfaceWidth: constraints.biggest.width.toInt(),
+                InterfaceHigh: constraints.biggest.height.toInt());
+            var mouseMsg = MouseMsg(type: 0, data: mouseData);
+            _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
+          },
+            onPanStart: (detail) {
+              print("onPanStart: ${detail.kind}, ${detail.globalPosition}, ${detail.localPosition}");
+              var mouseData = MouseData(
+                  ActiveType: 1,
+                  x: detail.localPosition.dx,
+                  y: detail.localPosition.dy,
+                  InterfaceWidth: constraints.biggest.width.toInt(),
+                  InterfaceHigh: constraints.biggest.height.toInt());
+              var mouseMsg = MouseMsg(type: 0, data: mouseData);
+              // _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
+            },
+            onPanUpdate: (detail) {
+              print("onPanUpdate: ${detail.globalPosition}, ${detail.localPosition}");
+              var mouseData = MouseData(
+                  ActiveType: 2,
+                  x: detail.localPosition.dx,
+                  y: detail.localPosition.dy,
+                  InterfaceWidth: constraints.biggest.width.toInt(),
+                  InterfaceHigh: constraints.biggest.height.toInt());
+              var mouseMsg = MouseMsg(type: 0, data: mouseData);
+              _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
+            },
+            onPanEnd: (detail) {
+              print("onPanEnd: ${detail.velocity}, ${detail.primaryVelocity}, ${detail}");
+              var mouseData = MouseData(
+                  ActiveType: 3,
+                  x: 0,
+                  y: 0,
+                  InterfaceWidth: constraints.biggest.width.toInt(),
+                  InterfaceHigh: constraints.biggest.height.toInt());
+              var mouseMsg = MouseMsg(type: 0, data: mouseData);
+              _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
+            },
+            onPanCancel: () {
+              print("onPanCancel: ");
+              var mouseData = MouseData(
+                  ActiveType: 3,
+                  x: 0,
+                  y: 0,
+                  InterfaceWidth: constraints.biggest.width.toInt(),
+                  InterfaceHigh: constraints.biggest.height.toInt());
+              var mouseMsg = MouseMsg(type: 0, data: mouseData);
+              _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
+            },
+            child: RTCVideoView(_remoteRenderer));
+      }),
     );
   }
 
@@ -147,12 +213,12 @@ class _KyyState extends State<Kyy> {
   }
 
   Future<void> _createDataChannel() async {
-    var rtcDataChannel = await _peerConnection?.createDataChannel('fileTransfer', RTCDataChannelInit()..id = 1);
-    rtcDataChannel?.onDataChannelState = (state) {
+    _dataChannel = await _peerConnection?.createDataChannel('fileTransfer', RTCDataChannelInit());
+    _dataChannel?.onDataChannelState = (state) {
       print('onDataChannelState $state');
     };
 
-    rtcDataChannel!.onMessage = (data) {
+    _dataChannel?.onMessage = (data) {
       print('onMessage: $data');
     };
   }
