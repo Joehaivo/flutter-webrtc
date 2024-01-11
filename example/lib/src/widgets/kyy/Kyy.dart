@@ -42,65 +42,72 @@ class _KyyState extends State<Kyy> {
           )
         ],
       ),
-      body: LayoutBuilder(builder: (context, constraints) {
-        return GestureDetector(
-          onPanDown: (detail) {
-            print("onPanDown: ${detail.globalPosition}, ${detail.localPosition}");
-            var mouseData = MouseData(
-                ActiveType: 1,
-                x: detail.localPosition.dx,
-                y: detail.localPosition.dy,
-                InterfaceWidth: constraints.biggest.width.toInt(),
-                InterfaceHigh: constraints.biggest.height.toInt());
-            var mouseMsg = MouseMsg(type: 0, data: mouseData);
-            _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
-          },
-            onPanStart: (detail) {
-              print("onPanStart: ${detail.kind}, ${detail.globalPosition}, ${detail.localPosition}");
-              var mouseData = MouseData(
-                  ActiveType: 1,
-                  x: detail.localPosition.dx,
-                  y: detail.localPosition.dy,
-                  InterfaceWidth: constraints.biggest.width.toInt(),
-                  InterfaceHigh: constraints.biggest.height.toInt());
-              var mouseMsg = MouseMsg(type: 0, data: mouseData);
-              // _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
-            },
-            onPanUpdate: (detail) {
-              print("onPanUpdate: ${detail.globalPosition}, ${detail.localPosition}");
-              var mouseData = MouseData(
-                  ActiveType: 2,
-                  x: detail.localPosition.dx,
-                  y: detail.localPosition.dy,
-                  InterfaceWidth: constraints.biggest.width.toInt(),
-                  InterfaceHigh: constraints.biggest.height.toInt());
-              var mouseMsg = MouseMsg(type: 0, data: mouseData);
-              _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
-            },
-            onPanEnd: (detail) {
-              print("onPanEnd: ${detail.velocity}, ${detail.primaryVelocity}, ${detail}");
-              var mouseData = MouseData(
-                  ActiveType: 3,
-                  x: 0,
-                  y: 0,
-                  InterfaceWidth: constraints.biggest.width.toInt(),
-                  InterfaceHigh: constraints.biggest.height.toInt());
-              var mouseMsg = MouseMsg(type: 0, data: mouseData);
-              _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
-            },
-            onPanCancel: () {
-              print("onPanCancel: ");
-              var mouseData = MouseData(
-                  ActiveType: 3,
-                  x: 0,
-                  y: 0,
-                  InterfaceWidth: constraints.biggest.width.toInt(),
-                  InterfaceHigh: constraints.biggest.height.toInt());
-              var mouseMsg = MouseMsg(type: 0, data: mouseData);
-              _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
-            },
-            child: RTCVideoView(_remoteRenderer));
-      }),
+      body: Container(
+        color: Colors.greenAccent,
+        width: double.infinity,
+        child: AspectRatio(
+          aspectRatio: 9/16,
+          child: LayoutBuilder(builder: (context, constraints) {
+            return GestureDetector(
+                onPanDown: (detail) {
+                  print("onPanDown: ${detail.globalPosition}, ${detail.localPosition}");
+                  var mouseData = MouseData(
+                      ActiveType: 1,
+                      x: detail.localPosition.dx,
+                      y: detail.localPosition.dy,
+                      InterfaceWidth: constraints.biggest.width.toInt(),
+                      InterfaceHigh: constraints.biggest.height.toInt());
+                  var mouseMsg = MouseMsg(type: 0, data: mouseData);
+                  _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
+                },
+                onPanStart: (detail) {
+                  print("onPanStart: ${detail.kind}, ${detail.globalPosition}, ${detail.localPosition}");
+                  var mouseData = MouseData(
+                      ActiveType: 1,
+                      x: detail.localPosition.dx,
+                      y: detail.localPosition.dy,
+                      InterfaceWidth: constraints.biggest.width.toInt(),
+                      InterfaceHigh: constraints.biggest.height.toInt());
+                  var mouseMsg = MouseMsg(type: 0, data: mouseData);
+                  // _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
+                },
+                onPanUpdate: (detail) {
+                  print("onPanUpdate: ${detail.globalPosition}, ${detail.localPosition}");
+                  var mouseData = MouseData(
+                      ActiveType: 2,
+                      x: detail.localPosition.dx,
+                      y: detail.localPosition.dy,
+                      InterfaceWidth: constraints.biggest.width.toInt(),
+                      InterfaceHigh: constraints.biggest.height.toInt());
+                  var mouseMsg = MouseMsg(type: 0, data: mouseData);
+                  _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
+                },
+                onPanEnd: (detail) {
+                  print("onPanEnd: ${detail.velocity}, ${detail.primaryVelocity}, ${detail}");
+                  var mouseData = MouseData(
+                      ActiveType: 3,
+                      x: 0,
+                      y: 0,
+                      InterfaceWidth: constraints.biggest.width.toInt(),
+                      InterfaceHigh: constraints.biggest.height.toInt());
+                  var mouseMsg = MouseMsg(type: 0, data: mouseData);
+                  _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
+                },
+                onPanCancel: () {
+                  print("onPanCancel: ");
+                  var mouseData = MouseData(
+                      ActiveType: 3,
+                      x: 0,
+                      y: 0,
+                      InterfaceWidth: constraints.biggest.width.toInt(),
+                      InterfaceHigh: constraints.biggest.height.toInt());
+                  var mouseMsg = MouseMsg(type: 0, data: mouseData);
+                  _dataChannel?.send(RTCDataChannelMessage(jsonEncode(mouseMsg)));
+                },
+                child: RTCVideoView(_remoteRenderer));
+          }),
+        ),
+      ),
     );
   }
 
